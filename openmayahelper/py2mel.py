@@ -39,18 +39,38 @@ class _Py2MelCommand:
         method_name, method = self._resolve_method(flag)
         signature = inspect.signature(method)
         blocked = set(self._exclude_flag_args.get(method_name, ()))
-        parameters = [param for param in signature.parameters.values() if param.name not in blocked]
-        required = [
+        parameters = [
             param
-            for param in parameters
-            if param.default is inspect._empty and param.kind in (param.POSITIONAL_ONLY, param.POSITIONAL_OR_KEYWORD)
+            for param in signature.parameters.values()
+            if param.kind in (param.POSITIONAL_ONLY, param.POSITIONAL_OR_KEYWORD)
         ]
-        allowed = len(
-            [param for param in parameters if param.kind in (param.POSITIONAL_ONLY, param.POSITIONAL_OR_KEYWORD)]
-        )
-        if len(args) < len(required) or len(args) > allowed:
-            raise TypeError(f"{method_name} expected between {len(required)} and {allowed} args")
-        return method(*args)
+        visible_parameters = [param for param in parameters if param.name not in blocked]
+        required = []
+        blocked_seen = False
+        for param in parameters:
+            if param.name in blocked:
+                blocked_seen = True
+                continue
+            if param.default is inspect._empty or blocked_seen:
+                required.append(param)
+        if len(args) < len(required) or len(args) > len(visible_parameters):
+            raise TypeError(f"{method_name} expected between {len(required)} and {len(visible_parameters)} args")
+
+        provided = iter(args)
+        call_kwargs = {}
+        for param in parameters:
+            if param.name in blocked:
+                if param.default is inspect._empty:
+                    raise TypeError(f"{method_name} cannot exclude required argument {param.name}")
+                call_kwargs[param.name] = param.default
+                continue
+            try:
+                call_kwargs[param.name] = next(provided)
+            except StopIteration:
+                if param.default is inspect._empty:
+                    raise TypeError(f"{method_name} missing argument {param.name}")
+                call_kwargs[param.name] = param.default
+        return method(**call_kwargs)
 
 
 def py2melCmd(target, commandName=None, excludeFlags=None, excludeFlagArgs=None):

@@ -9,6 +9,7 @@ _id_counter = itertools.count(1)
 _parent_stack = []
 _menu_stack = []
 _children = {}
+_registry = {}
 
 
 def currentParent():
@@ -27,6 +28,7 @@ class PyUI:
         self._name = name or f"{self.kind}{next(_id_counter)}"
         self._parent = parent if parent is not None else currentParent()
         _children.setdefault(self._name, [])
+        _registry[self._name] = self
         if self._parent is not None:
             _children.setdefault(str(self._parent), []).append(self)
 
@@ -55,6 +57,10 @@ class PyUI:
 
     def __str__(self):
         return self._name
+
+
+def get_ui(name):
+    return _registry.get(str(name))
 
 
 class FormLayout(PyUI):

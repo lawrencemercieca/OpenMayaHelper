@@ -13,4 +13,4 @@ class WindowsTests(unittest.TestCase):
         option_menu = OptionMenu("someOptionMenu")
         MenuItem(parent=option_menu)
         self.assertEqual(windows.menu(option_menu, q=True, numberOfItems=True), 1)
-        self.assertEqual(windows.menu(option_menu.name(), q=True, numberOfItems=True), 0)
+        self.assertEqual(windows.menu(option_menu.name(), q=True, numberOfItems=True), 1)

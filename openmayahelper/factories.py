@@ -14,7 +14,7 @@ def _build_api_maps():
     type_to_enum = {}
     enum_to_type = {}
     for name in dir(om.MFn):
-        if not name or not name[0].isupper():
+        if not name.startswith("k"):
             continue
         value = getattr(om.MFn, name)
         if not isinstance(value, int):

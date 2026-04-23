@@ -11,11 +11,11 @@ class Array(list):
 
     def _binary(self, other, op):
         if isinstance(other, Array):
-            return Array(op(a, b) for a, b in zip(self, other))
-        return Array(op(item, other) for item in self)
+            return Array([op(a, b) for a, b in zip(self, other)])
+        return Array([op(item, other) for item in self])
 
     def _rbinary(self, other, op):
-        return Array(op(other, item) for item in self)
+        return Array([op(other, item) for item in self])
 
     def __truediv__(self, other):
         return self._binary(other, lambda a, b: a / b)
