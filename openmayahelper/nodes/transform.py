@@ -22,5 +22,13 @@ class Transform(Node):
         om.MFnTransform(self.dag_path).setTranslation(vector, space)
         return self
 
+    def getTranslation(self, space=om.MSpace.kTransform):
+        if self.dag_path is None:
+            raise TypeError(f"{self.name} is not a DAG transform")
+        return om.MFnTransform(self.dag_path).translation(space)
+
+    def setTranslation(self, value, space=om.MSpace.kTransform):
+        return self.set_translation(value, space=space)
+
 
 register_node(Transform, om.MFn.kTransform)

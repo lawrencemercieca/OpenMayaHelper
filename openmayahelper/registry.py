@@ -34,7 +34,7 @@ def wrap_mobject(mobject, dag_path=None):
 
     if dag_path is None and mobject.hasFn(om.MFn.kDagNode):
         dag_path = om.MFnDagNode(mobject).getPath()
-    for node_cls, fn_types in _REGISTRY:
+    for node_cls, fn_types in reversed(_REGISTRY):
         if any(mobject.hasFn(fn_type) for fn_type in fn_types):
             return node_cls(mobject, dag_path=dag_path)
     return Node(mobject, dag_path=dag_path)

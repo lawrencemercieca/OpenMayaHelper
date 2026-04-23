@@ -1,52 +1,39 @@
-# mymaya
+# OpenMayaHelper
 
-`mymaya` is a lightweight Maya utility framework built around `maya.cmds` and `maya.api.OpenMaya`.
+OpenMayaHelper is an OpenMaya-first package intended to replace common high-level `pymel.core` workflows without depending on PyMEL.
 
-## Quick Start
+The repository is structured as a normal Python package:
 
-```python
-from mymaya import my
+- `openmayahelper/` contains the distributable package code.
+- `tests/` contains the top-level test suite.
+- `benchmark_test.py` contains local Maya benchmarking and smoke-test helpers.
 
-selected = my.selected
-for node in selected:
-    print(node.name, node.type_name)
-```
+## Goals
 
-```python
-from mymaya import my
+- Provide a familiar high-level scene API on top of `maya.api.OpenMaya`
+- Let projects swap from `pymel.core` usage to `openmayahelper.core`
+- Keep the runtime free of any PyMEL dependency
 
-ctrl = my.get('ctrl_main')
-print(ctrl.translate.get())
-print(ctrl.translateX.get())
-```
+## Package Surface
+
+The primary import target is:
 
 ```python
-from mymaya import my
-
-source = my.get('ctrl_main').translateX
-destination = my.get('joint1').translateX
-source.connect(destination)
+import openmayahelper.core as pm
 ```
 
-```python
-from mymaya import my
+That surface exposes helpers such as `PyNode`, `createNode`, `ls`, `addAttr`, `getAttr`, `setAttr`, `connectAttr`, `nt`, `mel`, and `general`.
 
-with my.batch() as b:
-    b.set('ctrl_main.translateX', 10.0)
-    b.connect('ctrl_main.translateX', 'joint1.translateX')
-    b.disconnect('oldDriver.output', 'joint1.translateX')
+## Development
+
+Run the static contract tests with a normal Python interpreter:
+
+```powershell
+python -m unittest tests.test_import_contract
 ```
 
-```python
-from mymaya.ops.animation import add_linear_keys
+Run the Maya-backed suite under `mayapy`:
 
-add_linear_keys('animCurveTL1', [1, 5, 10], [0.0, 4.0, 8.0])
+```powershell
+mayapy -m unittest discover -s tests -v
 ```
-
-## Notes
-
-- `my.selected` returns wrapped node objects.
-- `my.ls()` wraps listed nodes into typed classes automatically.
-- `my.get(name)` resolves one node into the appropriate wrapper.
-- Curve operations live in `mymaya.ops.curves`.
-- Animation curve bulk keying lives in `mymaya.ops.animation`.

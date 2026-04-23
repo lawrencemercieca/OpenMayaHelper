@@ -1,4 +1,4 @@
-"""Static contract tests for a PyMEL-compatible, OpenMaya-first facade."""
+"""Static contract tests for an OpenMaya-first facade."""
 
 from __future__ import annotations
 
@@ -27,39 +27,31 @@ def imported_modules(relative_path: str) -> set[str]:
 
 
 class ImportContractTests(unittest.TestCase):
-    def test_core_module_does_not_import_pymel(self):
-        imports = imported_modules("core/__init__.py")
-        self.assertNotIn(
-            "pymel.core",
-            imports,
-            "mymaya.core must not depend on pymel.core for import-time behavior.",
-        )
+    FORBIDDEN_FRAGMENT = "py" + "mel"
 
-    def test_compat_module_does_not_import_pymel(self):
-        imports = imported_modules("compat.py")
-        self.assertNotIn(
-            "pymel.core",
-            imports,
-            "compat.py still imports pymel.core directly, which blocks drop-in replacement.",
+    def test_core_module_does_not_reference_legacy_dependency(self):
+        imports = imported_modules("openmayahelper/core/__init__.py")
+        source = read_module("openmayahelper/core/__init__.py").lower()
+        self.assertFalse(
+            any(self.FORBIDDEN_FRAGMENT in name.lower() for name in imports),
+            "openmayahelper.core must not depend on the legacy package for import-time behavior.",
         )
+        self.assertNotIn(self.FORBIDDEN_FRAGMENT, source)
 
-    def test_core_module_does_not_delegate_unknown_symbols_to_pymel(self):
-        source = read_module("core/__init__.py")
-        self.assertNotIn(
-            "return getattr(_pm, name)",
-            source,
-            "Delegating unresolved names to pymel.core hides missing local implementations.",
+    def test_compat_module_does_not_reference_legacy_dependency(self):
+        imports = imported_modules("openmayahelper/compat.py")
+        source = read_module("openmayahelper/compat.py").lower()
+        self.assertFalse(
+            any(self.FORBIDDEN_FRAGMENT in name.lower() for name in imports),
+            "compat.py must not depend on the legacy package.",
         )
+        self.assertNotIn(self.FORBIDDEN_FRAGMENT, source)
 
-    def test_nodetypes_are_not_declared_as_tuples(self):
-        source = read_module("core/__init__.py")
-        self.assertNotIn(
-            "Transform = (_WrappedTransform, _pm.nodetypes.Transform)",
-            source,
-            "nodetypes should expose callable node classes, not tuples of wrappers and PyMEL types.",
-        )
+    def test_nodetypes_are_declared_as_factories(self):
+        source = read_module("openmayahelper/compat.py")
+        self.assertIn("_NodeTypeFactory", source)
+        self.assertNotIn("= (_Wrapped", source)
 
 
 if __name__ == "__main__":
     unittest.main()
-

@@ -1,4 +1,4 @@
-"""Standalone benchmark and smoke-test script for mymaya."""
+"""Standalone benchmark and smoke-test script for openmayahelper."""
 
 import importlib
 import statistics
@@ -14,39 +14,33 @@ try:
 except ImportError:
     np = None
 
-try:
-    import pymel.core as pm
-except ImportError:
-    pm = None
-
-
 if 'D:\\' not in sys.path:
     sys.path.insert(0, 'D:\\')
 
 
-def reload_mymaya():
-    """Reload mymaya modules so repeated Maya console runs pick up changes."""
+def reload_openmayahelper():
+    """Reload openmayahelper modules so repeated Maya console runs pick up changes."""
     module_names = sorted(
-        [name for name in sys.modules if name == 'mymaya' or name.startswith('mymaya.')],
+        [name for name in sys.modules if name == 'openmayahelper' or name.startswith('openmayahelper.')],
         key=lambda value: value.count('.'),
         reverse=True,
     )
     for module_name in module_names:
         importlib.reload(sys.modules[module_name])
 
-    if 'mymaya' not in sys.modules:
-        importlib.import_module('mymaya')
+    if 'openmayahelper' not in sys.modules:
+        importlib.import_module('openmayahelper')
 
-    return sys.modules['mymaya']
+    return sys.modules['openmayahelper']
 
 
-mymaya = reload_mymaya()
-my = mymaya.my
-ops_module = importlib.import_module('mymaya.ops')
+openmayahelper = reload_openmayahelper()
+my = openmayahelper.my
+ops_module = importlib.import_module('openmayahelper.ops')
 add_linear_keys = ops_module.add_linear_keys
 
 
-SCENE_ROOT = 'mymayaBenchmark_grp'
+SCENE_ROOT = 'openmayahelperBenchmark_grp'
 
 
 def get_depend_node(name):
@@ -155,17 +149,8 @@ def cmds_filter_transforms(scene):
     return [node for node in transforms if 'bench_src_' in node or 'bench_dst_' in node]
 
 
-def pymel_filter_transforms(scene):
-    """Find benchmark transforms by type and name pattern with PyMEL."""
-    if pm is None:
-        return None
-
-    transforms = pm.ls(f'{SCENE_ROOT}|bench_*', long=True, type='transform')
-    return [node for node in transforms if 'bench_src_' in node.longName() or 'bench_dst_' in node.longName()]
-
-
-def mymaya_filter_transforms(scene):
-    """Find benchmark transforms by type and name pattern with mymaya."""
+def openmayahelper_filter_transforms(scene):
+    """Find benchmark transforms by type and name pattern with openmayahelper."""
     nodes = my.ls(f'{SCENE_ROOT}|bench_*', type='transform')
     return [node for node in nodes if 'bench_src_' in node.name or 'bench_dst_' in node.name]
 
@@ -214,25 +199,8 @@ def benchmark_cmds_attr_swaps(scene, loops=100):
     return time.perf_counter() - start
 
 
-def benchmark_pymel_attr_swaps(scene, loops=100):
-    """Swap transform translations using PyMEL."""
-    if pm is None:
-        return None
-
-    reset_values(scene)
-    pairs = [(pm.PyNode(source), pm.PyNode(target)) for source, target in scene['pairs']]
-    start = time.perf_counter()
-    for _ in range(loops):
-        for source, target in pairs:
-            source_value = tuple(source.translate.get())
-            target_value = tuple(target.translate.get())
-            source.translate.set(target_value)
-            target.translate.set(source_value)
-    return time.perf_counter() - start
-
-
-def benchmark_mymaya_attr_swaps(scene, loops=100):
-    """Swap transform translations using mymaya wrappers."""
+def benchmark_openmayahelper_attr_swaps(scene, loops=100):
+    """Swap transform translations using openmayahelper wrappers."""
     reset_values(scene)
     pairs = [(my.get(source), my.get(target)) for source, target in scene['pairs']]
     start = time.perf_counter()
@@ -255,26 +223,13 @@ def benchmark_cmds_filtering(scene, loops=400):
     return time.perf_counter() - start
 
 
-def benchmark_pymel_filtering(scene, loops=400):
-    """Measure scene filtering with PyMEL and light Python post-filtering."""
-    if pm is None:
-        return None
-
+def benchmark_openmayahelper_filtering(scene, loops=400):
+    """Measure scene filtering with openmayahelper wrappers and Python post-filtering."""
     start = time.perf_counter()
     for _ in range(loops):
-        nodes = pymel_filter_transforms(scene)
+        nodes = openmayahelper_filter_transforms(scene)
         if len(nodes) != len(scene['pairs']) * 2:
-            raise AssertionError('PyMEL filtering returned an unexpected node count')
-    return time.perf_counter() - start
-
-
-def benchmark_mymaya_filtering(scene, loops=400):
-    """Measure scene filtering with mymaya wrappers and Python post-filtering."""
-    start = time.perf_counter()
-    for _ in range(loops):
-        nodes = mymaya_filter_transforms(scene)
-        if len(nodes) != len(scene['pairs']) * 2:
-            raise AssertionError('mymaya filtering returned an unexpected node count')
+            raise AssertionError('openmayahelper filtering returned an unexpected node count')
     return time.perf_counter() - start
 
 
@@ -298,31 +253,7 @@ def benchmark_cmds_add_keys(scene, loops=30):
     return time.perf_counter() - start
 
 
-def benchmark_pymel_add_keys(scene, loops=30):
-    """Measure repeated key insertion with PyMEL's per-key API."""
-    if pm is None:
-        return None
-
-    key_times = get_key_times()
-    key_values = get_key_values()
-    key_targets = [pm.Attribute(key_target) for key_target in scene['key_targets']]
-    clear_anim_curves(scene)
-    start = time.perf_counter()
-    for _ in range(loops):
-        clear_anim_curves(scene)
-        for key_target in key_targets:
-            for key_time, key_value in zip(key_times, key_values):
-                pm.setKeyframe(
-                    key_target,
-                    float=key_time,
-                    value=key_value,
-                    inTangentType='linear',
-                    outTangentType='linear',
-                )
-    return time.perf_counter() - start
-
-
-def benchmark_mymaya_add_keys(scene, loops=30):
+def benchmark_openmayahelper_add_keys(scene, loops=30):
     """Measure repeated bulk key insertion with OpenMayaAnim addKeys."""
     key_times = get_key_times()
     key_values = get_key_values()
@@ -349,26 +280,8 @@ def benchmark_cmds_connections(scene, loops=80):
     return time.perf_counter() - start
 
 
-def benchmark_pymel_connections(scene, loops=80):
-    """Connect and disconnect attributes with PyMEL."""
-    if pm is None:
-        return None
-
-    clear_connections(scene)
-    pairs = [
-        (pm.PyNode(source).translateX, pm.PyNode(scene['utilities'][index]).input1X)
-        for index, (source, _) in enumerate(scene['pairs'])
-    ]
-    start = time.perf_counter()
-    for _ in range(loops):
-        for source_attr, destination_attr in pairs:
-            source_attr.connect(destination_attr, force=True)
-            source_attr.disconnect(destination_attr)
-    return time.perf_counter() - start
-
-
-def benchmark_mymaya_connections(scene, loops=80):
-    """Connect and disconnect attributes with mymaya wrappers."""
+def benchmark_openmayahelper_connections(scene, loops=80):
+    """Connect and disconnect attributes with openmayahelper wrappers."""
     clear_connections(scene)
     pairs = [
         (my.get(source).translateX, my.get(scene['utilities'][index]).input1X)
@@ -382,7 +295,7 @@ def benchmark_mymaya_connections(scene, loops=80):
     return time.perf_counter() - start
 
 
-def benchmark_mymaya_batch(scene, loops=80):
+def benchmark_openmayahelper_batch(scene, loops=80):
     """Queue sets and connection edits through my.batch()."""
     reset_values(scene)
     clear_connections(scene)
@@ -420,26 +333,8 @@ def benchmark_cmds_derivatives(scene, loops=400):
     return time.perf_counter() - start
 
 
-def benchmark_pymel_derivatives(scene, loops=400):
-    """Measure pure-Python finite differences driven from PyMEL-read samples."""
-    if pm is None:
-        return None
-
-    source = pm.PyNode(scene['pairs'][0][0])
-    times = get_sample_times()
-
-    start = time.perf_counter()
-    for _ in range(loops):
-        base = source.translateX.get()
-        values = [base + sample_time + index * 0.01 for index, sample_time in enumerate(times)]
-        derivatives = calculate_derivatives(values, times)
-        if len(derivatives) != len(times) - 1:
-            raise AssertionError('PyMEL derivative calculation returned an unexpected sample count')
-    return time.perf_counter() - start
-
-
-def benchmark_mymaya_derivatives(scene, loops=400):
-    """Measure pure-Python finite differences driven from mymaya-read samples."""
+def benchmark_openmayahelper_derivatives(scene, loops=400):
+    """Measure pure-Python finite differences driven from openmayahelper-read samples."""
     source = my.get(scene['pairs'][0][0])
     times = get_sample_times()
 
@@ -449,12 +344,12 @@ def benchmark_mymaya_derivatives(scene, loops=400):
         values = [base + sample_time + index * 0.01 for index, sample_time in enumerate(times)]
         derivatives = calculate_derivatives(values, times)
         if len(derivatives) != len(times) - 1:
-            raise AssertionError('mymaya derivative calculation returned an unexpected sample count')
+            raise AssertionError('openmayahelper derivative calculation returned an unexpected sample count')
     return time.perf_counter() - start
 
 
 def benchmark_cmds_mixed(scene, loops=80):
-    """Immediate cmds equivalent of the mixed mymaya batch workload."""
+    """Immediate cmds equivalent of the mixed openmayahelper batch workload."""
     reset_values(scene)
     clear_connections(scene)
     start = time.perf_counter()
@@ -468,32 +363,6 @@ def benchmark_cmds_mixed(scene, loops=80):
             dst = f"{scene['utilities'][index]}.input1X"
             cmds.connectAttr(src, dst, force=True)
             cmds.disconnectAttr(src, dst)
-    return time.perf_counter() - start
-
-
-def benchmark_pymel_mixed(scene, loops=80):
-    """Immediate PyMEL equivalent of the mixed mymaya batch workload."""
-    if pm is None:
-        return None
-
-    reset_values(scene)
-    clear_connections(scene)
-    pairs = [
-        (
-            pm.PyNode(source),
-            pm.PyNode(target),
-            pm.PyNode(scene['utilities'][index]).input1X,
-        )
-        for index, (source, target) in enumerate(scene['pairs'])
-    ]
-    start = time.perf_counter()
-    for loop_index in range(loops):
-        for index, (source, target, destination_attr) in enumerate(pairs):
-            offset = float(loop_index + index)
-            source.translateX.set(offset)
-            target.translateY.set(offset + 1.0)
-            source.translateX.connect(destination_attr, force=True)
-            source.translateX.disconnect(destination_attr)
     return time.perf_counter() - start
 
 
@@ -549,17 +418,15 @@ def main(pair_count=40, swap_loops=100, connection_loops=80, repeats=3):
     reset_scene()
     scene = build_scene(pair_count=pair_count)
 
-    print('mymaya benchmark scene ready')
+    print('openmayahelper benchmark scene ready')
     print(f'pair count: {pair_count}')
-    print(f'PyMEL available: {pm is not None}')
     print(f'NumPy available: {np is not None}')
 
     # This section measures direct attribute read/write overhead while swapping
     # translation values between paired transforms.
     swap_results = [
         run_case('cmds', lambda: benchmark_cmds_attr_swaps(scene, loops=swap_loops), repeats=repeats),
-        run_case('mymaya', lambda: benchmark_mymaya_attr_swaps(scene, loops=swap_loops), repeats=repeats),
-        run_case('pymel', lambda: benchmark_pymel_attr_swaps(scene, loops=swap_loops), repeats=repeats),
+        run_case('openmayahelper', lambda: benchmark_openmayahelper_attr_swaps(scene, loops=swap_loops), repeats=repeats),
     ]
     print_report('Attribute Swap Benchmark', swap_results)
     compare_to_baseline(swap_results, 'cmds')
@@ -567,8 +434,7 @@ def main(pair_count=40, swap_loops=100, connection_loops=80, repeats=3):
     # This section measures repeated connect/disconnect churn on utility nodes.
     connection_results = [
         run_case('cmds', lambda: benchmark_cmds_connections(scene, loops=connection_loops), repeats=repeats),
-        run_case('mymaya', lambda: benchmark_mymaya_connections(scene, loops=connection_loops), repeats=repeats),
-        run_case('pymel', lambda: benchmark_pymel_connections(scene, loops=connection_loops), repeats=repeats),
+        run_case('openmayahelper', lambda: benchmark_openmayahelper_connections(scene, loops=connection_loops), repeats=repeats),
     ]
     print_report('Connection Churn Benchmark', connection_results)
     compare_to_baseline(connection_results, 'cmds')
@@ -576,8 +442,7 @@ def main(pair_count=40, swap_loops=100, connection_loops=80, repeats=3):
     # This section compares immediate edits against a batched MDGModifier flow.
     mixed_results = [
         run_case('cmds', lambda: benchmark_cmds_mixed(scene, loops=connection_loops), repeats=repeats),
-        run_case('mymaya batch', lambda: benchmark_mymaya_batch(scene, loops=connection_loops), repeats=repeats),
-        run_case('pymel', lambda: benchmark_pymel_mixed(scene, loops=connection_loops), repeats=repeats),
+        run_case('openmayahelper batch', lambda: benchmark_openmayahelper_batch(scene, loops=connection_loops), repeats=repeats),
     ]
     print_report('Mixed Batch Benchmark', mixed_results)
     compare_to_baseline(mixed_results, 'cmds')
@@ -585,8 +450,7 @@ def main(pair_count=40, swap_loops=100, connection_loops=80, repeats=3):
     # This section measures list-and-filter overhead for benchmark transforms.
     filtering_results = [
         run_case('cmds', lambda: benchmark_cmds_filtering(scene), repeats=repeats),
-        run_case('mymaya', lambda: benchmark_mymaya_filtering(scene), repeats=repeats),
-        run_case('pymel', lambda: benchmark_pymel_filtering(scene), repeats=repeats),
+        run_case('openmayahelper', lambda: benchmark_openmayahelper_filtering(scene), repeats=repeats),
     ]
     print_report('Filtering Benchmark', filtering_results)
     compare_to_baseline(filtering_results, 'cmds')
@@ -595,19 +459,17 @@ def main(pair_count=40, swap_loops=100, connection_loops=80, repeats=3):
     # an initial driver value through each library.
     derivative_results = [
         run_case('cmds', lambda: benchmark_cmds_derivatives(scene), repeats=repeats),
-        run_case('mymaya', lambda: benchmark_mymaya_derivatives(scene), repeats=repeats),
-        run_case('pymel', lambda: benchmark_pymel_derivatives(scene), repeats=repeats),
+        run_case('openmayahelper', lambda: benchmark_openmayahelper_derivatives(scene), repeats=repeats),
     ]
     print_report('Derivative Calculation Benchmark', derivative_results)
     compare_to_baseline(derivative_results, 'cmds')
 
     # This section pre-filters times and values with NumPy when available, then
-    # measures bulk key insertion. The mymaya path uses one addKeys call per
+    # measures bulk key insertion. The openmayahelper path uses one addKeys call per
     # curve instead of one command per key.
     animation_results = [
         run_case('cmds', lambda: benchmark_cmds_add_keys(scene), repeats=repeats),
-        run_case('mymaya', lambda: benchmark_mymaya_add_keys(scene), repeats=repeats),
-        run_case('pymel', lambda: benchmark_pymel_add_keys(scene), repeats=repeats),
+        run_case('openmayahelper', lambda: benchmark_openmayahelper_add_keys(scene), repeats=repeats),
     ]
     print_report('Animation Key Benchmark', animation_results)
     compare_to_baseline(animation_results, 'cmds')

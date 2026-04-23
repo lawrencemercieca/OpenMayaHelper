@@ -1,4 +1,4 @@
-"""Top-level API surface for the mymaya package."""
+"""Top-level API surface for the openmayahelper package."""
 
 from maya import cmds
 from maya.api import OpenMaya as om

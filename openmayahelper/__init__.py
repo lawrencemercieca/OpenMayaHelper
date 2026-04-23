@@ -1,4 +1,4 @@
-"""Public package entry points for mymaya."""
+"""Public package entry points for openmayahelper."""
 
 from . import nodes as _nodes  # noqa: F401
 from .api import MayaAPI

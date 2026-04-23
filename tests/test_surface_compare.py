@@ -1,8 +1,8 @@
-"""Surface comparison tests against PyMEL when both runtimes are available."""
+"""Surface consistency tests for openmayahelper.core."""
 
 from __future__ import annotations
 
-from maya_testlib import MayaPyMELCompareTestCase, import_module
+from maya_testlib import MayaTestCase, import_module
 
 
 CRITICAL_CORE_SYMBOLS = {
@@ -31,31 +31,26 @@ CRITICAL_CORE_SYMBOLS = {
 }
 
 
-class SurfaceComparisonTests(MayaPyMELCompareTestCase):
+class SurfaceComparisonTests(MayaTestCase):
     def setUp(self):
         super().setUp()
-        self.mm = import_module("mymaya.core")
-        self.pm = import_module("pymel.core")
+        self.core = import_module("openmayahelper.core")
 
     def test_critical_surface_symbols_exist(self):
-        missing = sorted(name for name in CRITICAL_CORE_SYMBOLS if not hasattr(self.mm, name))
-        self.assertEqual([], missing, "mymaya.core is missing critical pymel.core symbols.")
+        missing = sorted(name for name in CRITICAL_CORE_SYMBOLS if not hasattr(self.core, name))
+        self.assertEqual([], missing, "openmayahelper.core is missing critical surface symbols.")
 
-    def test_basic_scene_ops_match_pymel(self):
-        mm_node = self.mm.createNode("transform", name="sharedNode")
-        self.mm.addAttr(mm_node, longName="speed", attributeType="double")
-        self.mm.setAttr("sharedNode.speed", 7.25)
-        mm_list = [str(node) for node in self.mm.ls("sharedNode")]
-        mm_attr = self.mm.PyNode("sharedNode.speed")
+    def test_basic_scene_ops_are_self_consistent(self):
+        node = self.core.createNode("transform", name="sharedNode")
+        self.core.addAttr(node, longName="speed", attributeType="double")
+        self.core.setAttr("sharedNode.speed", 7.25)
+        listed = [str(item) for item in self.core.ls("sharedNode")]
+        attr = self.core.PyNode("sharedNode.speed")
 
-        pm_node = self.pm.PyNode("sharedNode")
-        pm_list = [str(node) for node in self.pm.ls("sharedNode")]
-        pm_attr = self.pm.PyNode("sharedNode.speed")
-
-        self.assertEqual(str(mm_node), str(pm_node))
-        self.assertEqual(mm_list, pm_list)
-        self.assertEqual(str(mm_attr), str(pm_attr))
-        self.assertEqual(self.mm.getAttr(mm_attr), self.pm.getAttr(pm_attr))
+        self.assertEqual(str(node), "sharedNode")
+        self.assertEqual(listed, ["sharedNode"])
+        self.assertEqual(str(attr), "sharedNode.speed")
+        self.assertEqual(self.core.getAttr(attr), 7.25)
 
 
 if __name__ == "__main__":

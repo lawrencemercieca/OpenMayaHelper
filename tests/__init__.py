@@ -1,1 +1,1 @@
-"""Compatibility tests for mymaya."""
+"""Test package for openmayahelper."""
