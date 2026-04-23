@@ -25,21 +25,6 @@ os.environ.setdefault("MAYA_SKIP_USERSETUP_PY", "1")
 
 _MAYA_INITIALIZED = False
 _MAYA_SHUTDOWN_REGISTERED = False
-_ORIGINAL_RUN = unittest.runner.TextTestRunner.run
-
-
-def _recording_run(self, test):
-    result = _ORIGINAL_RUN(self, test)
-    os.environ["_OPENMAYAHELPER_UNITTEST_SUCCESS"] = "1" if result.wasSuccessful() else "0"
-    try:
-        sys.stdout.flush()
-        sys.stderr.flush()
-    finally:
-        os._exit(0 if result.wasSuccessful() else 1)
-    return result
-
-
-unittest.runner.TextTestRunner.run = _recording_run
 
 
 def ensure_maya_initialized() -> None:
@@ -77,13 +62,11 @@ def ensure_maya_initialized() -> None:
                 standalone.uninitialize()
             except Exception:
                 pass
-            status = os.environ.get("_OPENMAYAHELPER_UNITTEST_SUCCESS")
-            if status in {"0", "1"}:
-                try:
-                    sys.stdout.flush()
-                    sys.stderr.flush()
-                finally:
-                    os._exit(0 if status == "1" else 1)
+            try:
+                sys.stdout.flush()
+                sys.stderr.flush()
+            except Exception:
+                pass
 
         atexit.register(_shutdown_maya)
         _MAYA_SHUTDOWN_REGISTERED = True
