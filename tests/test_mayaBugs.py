@@ -1,6 +1,15 @@
-"""Mirrored PyMEL test module scaffold for OpenMayaHelper."""
+"""OpenMayaHelper port of PyMEL's test_mayaBugs module."""
 
-from tests._porting import make_port_placeholder
+from __future__ import annotations
+
+import unittest
+
+from openmayahelper.maya_bugs import known_issue_ids
 
 
-TestPortScaffold = make_port_placeholder(__name__)
+class MayaBugsTests(unittest.TestCase):
+    def test_known_issue_ids_are_stable(self):
+        self.assertEqual(
+            known_issue_ids(),
+            ("constraint_offset_query", "empty_nurbs_curve", "surface_range_domain"),
+        )

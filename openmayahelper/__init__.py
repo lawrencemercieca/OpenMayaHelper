@@ -2,7 +2,11 @@
 
 from . import nodes as _nodes  # noqa: F401
 from .api import MayaAPI
+from .api_plugins import mayaPlugins
+from .arguments import RemovedKey, compareCascadingDicts, deepPatch, deepPatchAltered, mergeCascadingDicts
 from .attrs.attr import Attr
+from .datatypes import Point, Vector
+from .factories import apiEnumsToApiTypes, apiTypesToApiEnums, maybeConvert
 from .compat import (
     MayaAttributeError,
     PyNode,
@@ -30,46 +34,128 @@ from .compat import (
     unloadPlugin,
 )
 from .language import MelArgumentError, MelConversionError, MelGlobals, MelUnknownProcedureError, env, melGlobals
+from .maya_bugs import known_issue_ids
 from .mayautils import getMayaVersion
+from .mel2py import mel2pyStr
 from .nodes import Node
-from . import language, mayautils, pmcmds
+from .plogging import ERRORLEVEL, getLogger, raiseLog
+from .py2mel import py2melCmd
+from .startup import OpenMayaHelperCache
+from .testingutils import TestCaseExtended
+from .trees import Tree
+from .uitypes import ColumnLayout, FormLayout, Menu, MenuItem, OptionMenu, PyUI, RowLayout, currentMenuParent, currentParent
+from .util_arrays import Array
+from .util_path import path
+from .utilitytypes import Enum, Singleton
+from . import (
+    api_plugins,
+    arguments,
+    datatypes,
+    factories,
+    language,
+    maya_bugs,
+    mayautils,
+    mel2py,
+    plogging,
+    pmcmds,
+    py2mel,
+    startup,
+    testingutils,
+    trees,
+    uitypes,
+    util_arrays,
+    util_common,
+    util_path,
+    utilitytypes,
+    windows,
+)
 
 __all__ = [
     'MayaAPI',
     'MayaAttributeError',
     'Attr',
+    'Array',
+    'ColumnLayout',
+    'currentMenuParent',
+    'currentParent',
+    'Enum',
+    'ERRORLEVEL',
+    'FormLayout',
+    'Menu',
+    'MenuItem',
     'Node',
+    'Point',
     'PyNode',
+    'PyUI',
+    'RowLayout',
+    'Singleton',
+    'api_plugins',
+    'apiEnumsToApiTypes',
+    'apiTypesToApiEnums',
     'addDynamicNode',
     'addAttr',
     'allNodeTypes',
+    'arguments',
+    'datatypes',
     'channelBox',
+    'compareCascadingDicts',
     'connectAttr',
     'createNode',
     'delete',
     'deleteAttr',
+    'deepPatch',
+    'deepPatchAltered',
     'env',
+    'factories',
     'getAttr',
+    'getLogger',
     'getMayaVersion',
     'hasAttr',
+    'known_issue_ids',
     'keyframe',
     'listConnections',
     'loadPlugin',
     'ls',
     'language',
     'mel',
+    'mel2py',
+    'mel2pyStr',
     'melGlobals',
     'MelArgumentError',
     'MelConversionError',
     'MelGlobals',
     'MelUnknownProcedureError',
+    'mergeCascadingDicts',
+    'mayaPlugins',
+    'maya_bugs',
+    'maybeConvert',
     'my',
+    'OpenMayaHelperCache',
+    'OptionMenu',
     'nt',
+    'path',
+    'plogging',
     'pmcmds',
+    'py2mel',
+    'py2melCmd',
+    'raiseLog',
+    'RemovedKey',
     'rename',
     'select',
     'setAttr',
     'setKeyframe',
     'mayautils',
+    'startup',
+    'TestCaseExtended',
+    'testingutils',
+    'Tree',
+    'trees',
     'unloadPlugin',
+    'uitypes',
+    'util_arrays',
+    'util_common',
+    'util_path',
+    'utilitytypes',
+    'Vector',
+    'windows',
 ]
