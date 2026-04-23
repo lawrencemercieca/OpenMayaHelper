@@ -1,6 +1,16 @@
-"""Mirrored PyMEL test module scaffold for OpenMayaHelper."""
+"""OpenMayaHelper port of PyMEL's test_testingutils module."""
 
-from tests._porting import make_port_placeholder
+from __future__ import annotations
+
+from openmayahelper.testingutils import TestCaseExtended
 
 
-TestPortScaffold = make_port_placeholder(__name__)
+class TestingUtilsTests(TestCaseExtended):
+    def test_exact_iteration_match(self):
+        self.assertIteration("foo", ["f", "o", "o"])
+
+    def test_only_membership_match(self):
+        self.assertIteration("foo", ["o", "f"], onlyMembershipMatters=True)
+
+    def test_unordered_counter_match(self):
+        self.assertIteration("foo", ["o", "f", "o"], orderMatters=False)
