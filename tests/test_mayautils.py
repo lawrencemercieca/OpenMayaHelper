@@ -1,6 +1,14 @@
-"""Mirrored PyMEL test module scaffold for OpenMayaHelper."""
+"""OpenMayaHelper port of PyMEL's test_mayautils module."""
 
-from tests._porting import make_port_placeholder
+from __future__ import annotations
+
+from maya_testlib import MayaTestCase, import_module
 
 
-TestPortScaffold = make_port_placeholder(__name__)
+class MayaUtilsTests(MayaTestCase):
+    def setUp(self):
+        super().setUp()
+        self.mayautils = import_module("openmayahelper.mayautils")
+
+    def test_get_maya_version_matches_cmds_about_api(self):
+        self.assertEqual(self.mayautils.getMayaVersion(), self.cmds.about(api=True))

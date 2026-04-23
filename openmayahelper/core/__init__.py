@@ -4,7 +4,9 @@ from ..compat import (
     Attribute,
     PyNode,
     about,
+    addDynamicNode,
     addAttr,
+    allNodeTypes,
     connectAttr,
     createNode,
     delete,
@@ -15,6 +17,7 @@ from ..compat import (
     keyframe,
     listConnections,
     ls,
+    loadPlugin,
     mel,
     my,
     nodetypes,
@@ -25,6 +28,7 @@ from ..compat import (
     setAttr,
     setKeyframe,
     system,
+    unloadPlugin,
 )
 from .dag import dag_path_from_name
 from .dg import dependency_node_from_name
@@ -35,7 +39,9 @@ __all__ = [
     "Attribute",
     "PyNode",
     "about",
+    "addDynamicNode",
     "addAttr",
+    "allNodeTypes",
     "connectAttr",
     "createNode",
     "dag_path_from_name",
@@ -51,6 +57,7 @@ __all__ = [
     "keyframe",
     "listConnections",
     "ls",
+    "loadPlugin",
     "mel",
     "my",
     "nodetypes",
@@ -61,4 +68,5 @@ __all__ = [
     "setAttr",
     "setKeyframe",
     "system",
+    "unloadPlugin",
 ]

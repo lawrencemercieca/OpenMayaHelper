@@ -60,6 +60,9 @@ class _NodeTypes:
     def __getattr__(self, name):
         if name.startswith("AnimCurve"):
             return _NodeTypeFactory(AnimCurve, name[0].lower() + name[1:])
+        node_type = name[0].lower() + name[1:]
+        if node_type in set(cmds.allNodeTypes()):
+            return _NodeTypeFactory(Node, node_type)
         raise AttributeError(name)
 
 
@@ -87,6 +90,10 @@ def about(**kwargs):
 
 def playbackOptions(**kwargs):
     return cmds.playbackOptions(**kwargs)
+
+
+def allNodeTypes():
+    return cmds.allNodeTypes()
 
 
 def ls(*args, **kwargs):
@@ -185,6 +192,21 @@ def channelBox(*args, **kwargs):
     return cmds.channelBox(*args, **kwargs)
 
 
+def loadPlugin(*args, **kwargs):
+    return cmds.loadPlugin(*args, **kwargs)
+
+
+def unloadPlugin(*args, **kwargs):
+    return cmds.unloadPlugin(*args, **kwargs)
+
+
+def addDynamicNode(*args, **kwargs):
+    command = getattr(cmds, "addDynamicNode", None)
+    if command is None:
+        raise AttributeError("addDynamicNode")
+    return command(*args, **kwargs)
+
+
 def select(targets=None, **kwargs):
     if targets is None:
         return cmds.select(**kwargs)
@@ -200,7 +222,9 @@ __all__ = [
     "MayaAttributeError",
     "PyNode",
     "about",
+    "addDynamicNode",
     "addAttr",
+    "allNodeTypes",
     "channelBox",
     "connectAttr",
     "createNode",
@@ -222,4 +246,6 @@ __all__ = [
     "setAttr",
     "setKeyframe",
     "system",
+    "loadPlugin",
+    "unloadPlugin",
 ]

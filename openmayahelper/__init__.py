@@ -6,7 +6,9 @@ from .attrs.attr import Attr
 from .compat import (
     MayaAttributeError,
     PyNode,
+    addDynamicNode,
     addAttr,
+    allNodeTypes,
     channelBox,
     connectAttr,
     createNode,
@@ -16,6 +18,7 @@ from .compat import (
     hasAttr,
     keyframe,
     listConnections,
+    loadPlugin,
     ls,
     mel,
     my,
@@ -24,8 +27,12 @@ from .compat import (
     select,
     setAttr,
     setKeyframe,
+    unloadPlugin,
 )
+from .language import MelArgumentError, MelConversionError, MelGlobals, MelUnknownProcedureError, env, melGlobals
+from .mayautils import getMayaVersion
 from .nodes import Node
+from . import language, mayautils, pmcmds
 
 __all__ = [
     'MayaAPI',
@@ -33,22 +40,36 @@ __all__ = [
     'Attr',
     'Node',
     'PyNode',
+    'addDynamicNode',
     'addAttr',
+    'allNodeTypes',
     'channelBox',
     'connectAttr',
     'createNode',
     'delete',
     'deleteAttr',
+    'env',
     'getAttr',
+    'getMayaVersion',
     'hasAttr',
     'keyframe',
     'listConnections',
+    'loadPlugin',
     'ls',
+    'language',
     'mel',
+    'melGlobals',
+    'MelArgumentError',
+    'MelConversionError',
+    'MelGlobals',
+    'MelUnknownProcedureError',
     'my',
     'nt',
+    'pmcmds',
     'rename',
     'select',
     'setAttr',
     'setKeyframe',
+    'mayautils',
+    'unloadPlugin',
 ]
