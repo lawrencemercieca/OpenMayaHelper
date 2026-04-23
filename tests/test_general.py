@@ -59,6 +59,12 @@ class GeneralTests(MayaTestCase):
         self.core.delete(renamed)
         self.assertEqual(self.cmds.objExists("renamedNode"), 0)
 
+    def test_node_exists_tracks_scene_lifetime(self):
+        node = self.core.createNode("transform", name="existsNode")
+        self.assertTrue(node.exists())
+        self.core.delete(node)
+        self.assertFalse(node.exists())
+
     def test_node_helpers_expose_basic_identity_methods(self):
         node = self.core.createNode("transform", name="identityNode")
         self.assertEqual(str(node), "identityNode")
@@ -76,6 +82,18 @@ class GeneralTests(MayaTestCase):
         self.assertEqual(attr.name(), "attrMetaNode.weight")
         self.assertEqual(attr.get(), 5.25)
 
+    def test_attr_exists_and_lock_cycle(self):
+        node = self.core.createNode("transform", name="lockNode")
+        attr = node.translateX
+        self.assertTrue(attr.exists())
+        self.assertTrue(attr.isSettable())
+        attr.lock()
+        self.assertTrue(attr.isLocked())
+        self.assertFalse(attr.isSettable())
+        attr.unlock()
+        self.assertFalse(attr.isLocked())
+        self.assertTrue(attr.isSettable())
+
     def test_attribute_connections_expose_source_and_destinations(self):
         source = self.core.createNode("transform", name="srcNode")
         target = self.core.createNode("transform", name="dstNode")
@@ -83,3 +101,9 @@ class GeneralTests(MayaTestCase):
         self.assertEqual(str(target.translateX.source()), "srcNode.translateX")
         self.assertEqual([str(item) for item in source.translateX.destinations()], ["dstNode.translateX"])
 
+    def test_parent_child_shape_queries(self):
+        transform = self.core.createNode("transform", name="shapeDriver")
+        shape = self.core.createNode("mesh", name="shapeDriverShape", parent=str(transform))
+        self.assertEqual(str(transform.getShape()), str(shape))
+        self.assertEqual(str(shape.getParent()), "shapeDriver")
+        self.assertTrue(transform.hasChild(shape))

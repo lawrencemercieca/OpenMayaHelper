@@ -32,3 +32,8 @@ class NodeTypesTests(MayaTestCase):
         orientation = joint.orientation
         self.assertEqual(tuple(orientation), (0.0, 0.0, 0.0, 1.0))
 
+    def test_transform_full_path_and_long_name(self):
+        parent = self.core.nt.Transform(name="rootNode")
+        child = self.core.createNode("transform", name="childNode", parent=str(parent))
+        self.assertEqual(str(child.fullPath()), "|rootNode|childNode")
+        self.assertEqual(str(child.longName()), "|rootNode|childNode")

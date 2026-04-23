@@ -24,3 +24,7 @@ class SystemTests(MayaTestCase):
         minimum = self.core.playbackOptions(query=True, minTime=True)
         self.assertIsNotNone(minimum)
 
+    def test_mel_helper_exposes_current_time_unit_fps(self):
+        fps = self.core.mel.currentTimeUnitToFPS()
+        self.assertTrue(isinstance(fps, (int, float)))
+        self.assertGreater(fps, 0)

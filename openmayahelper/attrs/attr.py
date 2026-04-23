@@ -31,6 +31,9 @@ class Attr:
     def name(self):
         return self.full_name
 
+    def exists(self):
+        return bool(cmds.objExists(self.full_name))
+
     def get(self):
         plug = self.plug
         if plug.isArray:
@@ -110,6 +113,24 @@ class Attr:
 
     def isHidden(self):
         return cmds.addAttr(self.full_name, query=True, hidden=True)
+
+    def isLocked(self):
+        return bool(cmds.getAttr(self.full_name, lock=True))
+
+    def lock(self, checkReference=False):
+        return self.setLocked(True, checkReference=checkReference)
+
+    def unlock(self, checkReference=False):
+        return self.setLocked(False, checkReference=checkReference)
+
+    def setLocked(self, state, checkReference=False):
+        if checkReference and cmds.referenceQuery(self.nodeName(), isNodeReferenced=True):
+            raise AttributeError(f"{self.full_name} is referenced")
+        cmds.setAttr(self.full_name, lock=bool(state))
+        return self
+
+    def isSettable(self):
+        return bool(cmds.getAttr(self.full_name, settable=True))
 
     def __rshift__(self, other):
         self.connect(other)

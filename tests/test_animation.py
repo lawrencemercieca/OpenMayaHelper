@@ -23,3 +23,9 @@ class AnimationTests(MayaTestCase):
         times = self.core.keyframe(node.translateX, query=True, index=1, timeChange=True)
         self.assertEqual(times, [5.0])
 
+    def test_keyframe_time_query_range(self):
+        node = self.core.createNode("transform", name="rangeAnimNode")
+        for frame in (1, 3, 5, 7):
+            self.core.setKeyframe(node.translateX, time=frame, value=float(frame))
+        count = self.core.keyframe(node.translateX, query=True, time=(3, 7), keyframeCount=True)
+        self.assertEqual(count, 3)
