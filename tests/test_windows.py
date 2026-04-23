@@ -1,6 +1,16 @@
-"""Mirrored PyMEL test module scaffold for OpenMayaHelper."""
+"""OpenMayaHelper port of PyMEL's test_windows module."""
 
-from tests._porting import make_port_placeholder
+from __future__ import annotations
+
+import unittest
+
+from openmayahelper import windows
+from openmayahelper.uitypes import MenuItem, OptionMenu
 
 
-TestPortScaffold = make_port_placeholder(__name__)
+class WindowsTests(unittest.TestCase):
+    def test_option_menu_can_be_queried_as_menu(self):
+        option_menu = OptionMenu("someOptionMenu")
+        MenuItem(parent=option_menu)
+        self.assertEqual(windows.menu(option_menu, q=True, numberOfItems=True), 1)
+        self.assertEqual(windows.menu(option_menu.name(), q=True, numberOfItems=True), 0)
