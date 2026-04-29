@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+try:
+    from maya.api import OpenMaya as om
+except Exception:  # pragma: no cover - permits import outside Maya
+    om = None
+
 
 class _CoordinateBase:
     size = 0
@@ -74,10 +79,25 @@ class _CoordinateBase:
         except TypeError:
             return False
 
+    def as_tuple(self):
+        return tuple(self._values)
+
+    def __repr__(self):
+        return f"{type(self).__name__}({', '.join(str(v) for v in self._values)})"
+
 
 class Vector(_CoordinateBase):
     size = 3
     shape = (3,)
+
+    @classmethod
+    def from_maya(cls, value):
+        return cls(value.x, value.y, value.z)
+
+    def to_maya(self):
+        if om is None:
+            raise RuntimeError("maya.api.OpenMaya is not available")
+        return om.MVector(self.x, self.y, self.z)
 
     x = property(lambda self: self._values[0], lambda self, value: self.__setitem__(0, value))
     y = property(lambda self: self._values[1], lambda self, value: self.__setitem__(1, value))
@@ -87,6 +107,15 @@ class Vector(_CoordinateBase):
 class Point(_CoordinateBase):
     size = 4
     shape = (4,)
+
+    @classmethod
+    def from_maya(cls, value):
+        return cls(value.x, value.y, value.z, getattr(value, "w", 1.0))
+
+    def to_maya(self):
+        if om is None:
+            raise RuntimeError("maya.api.OpenMaya is not available")
+        return om.MPoint(self.x, self.y, self.z, self.w)
 
     @classmethod
     def _defaults(cls):

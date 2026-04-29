@@ -7,6 +7,7 @@ from .arguments import RemovedKey, compareCascadingDicts, deepPatch, deepPatchAl
 from .attrs.attr import Attr
 from .datatypes import Point, Vector
 from .factories import apiEnumsToApiTypes, apiTypesToApiEnums, maybeConvert
+from . import omutils
 from .compat import (
     MayaAttributeError,
     PyNode,
@@ -134,6 +135,7 @@ __all__ = [
     'OpenMayaHelperCache',
     'OptionMenu',
     'nt',
+    'omutils',
     'path',
     'plogging',
     'pmcmds',

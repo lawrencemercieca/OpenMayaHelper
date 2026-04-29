@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 try:
-    import maya.OpenMaya as om
+    from maya.api import OpenMaya as om
 except ImportError:  # pragma: no cover
     om = None
 

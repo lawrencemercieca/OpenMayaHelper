@@ -35,4 +35,4 @@ def _translate_poly_cube(command):
             kwargs.append(f"{flag}={values[0]}")
         else:
             kwargs.append(f"{flag}=({', '.join(values)})")
-    return "from openmayahelper import pmcmds\npmcmds.polyCube(" + ", ".join(kwargs) + ")\n"
+    return "from openmayahelper import compat as pm\npm.general.polyCube(" + ", ".join(kwargs) + ")\n"
