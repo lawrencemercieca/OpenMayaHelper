@@ -1,4 +1,9 @@
-"""Core Maya wrappers and helpers."""
+"""Core Maya wrappers and helpers.
+
+This module keeps the existing PyMEL/drop-in-style public surface while exposing
+OpenMaya-native helpers that accept PyMEL objects, strings, project wrappers, and
+raw OpenMaya handles.
+"""
 
 from ..compat import (
     Attribute,
@@ -30,10 +35,36 @@ from ..compat import (
     system,
     unloadPlugin,
 )
-from .dag import dag_path_from_name
-from .dg import dependency_node_from_name
-from .objects import get_mobject, get_node_name
-from .plugs import find_plug
+from .dag import (
+    all_paths_to,
+    as_dag_path,
+    child_paths,
+    dag_path_from_name,
+    first_shape_path,
+    full_path_name,
+    parent_path,
+    partial_path_name,
+    shape_paths,
+)
+from .dg import (
+    as_dependency_node,
+    connected_plugs,
+    dependency_node_from_name,
+    dependency_type_name,
+    has_attr,
+    is_type,
+    node_name,
+)
+from .objects import as_name, exists, get_mobject, get_node_name, is_dag_node
+from .plugs import (
+    as_plug,
+    disconnect_plugs,
+    find_plug,
+    get_plug_value,
+    plug_name,
+    set_plug_value,
+    split_plug_name,
+)
 
 __all__ = [
     "Attribute",
@@ -42,31 +73,54 @@ __all__ = [
     "addDynamicNode",
     "addAttr",
     "allNodeTypes",
+    "all_paths_to",
+    "as_dag_path",
+    "as_dependency_node",
+    "as_name",
+    "as_plug",
+    "child_paths",
     "connectAttr",
+    "connected_plugs",
     "createNode",
     "dag_path_from_name",
     "delete",
     "deleteAttr",
     "dependency_node_from_name",
+    "dependency_type_name",
+    "disconnect_plugs",
+    "exists",
     "find_plug",
+    "first_shape_path",
+    "full_path_name",
     "general",
     "get_mobject",
     "get_node_name",
+    "get_plug_value",
     "getAttr",
+    "has_attr",
     "hasAttr",
+    "is_dag_node",
+    "is_type",
     "keyframe",
     "listConnections",
     "ls",
     "loadPlugin",
     "mel",
     "my",
+    "node_name",
     "nodetypes",
     "nt",
+    "parent_path",
+    "partial_path_name",
     "playbackOptions",
+    "plug_name",
     "rename",
     "select",
+    "set_plug_value",
     "setAttr",
     "setKeyframe",
+    "shape_paths",
+    "split_plug_name",
     "system",
     "unloadPlugin",
 ]
