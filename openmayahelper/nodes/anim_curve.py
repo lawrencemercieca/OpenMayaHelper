@@ -1,5 +1,7 @@
 """Animation curve node wrapper."""
 
+from __future__ import annotations
+
 from maya.api import OpenMaya as om
 from maya.api import OpenMayaAnim as oma
 
@@ -11,14 +13,19 @@ class AnimCurve(Node):
     """Wrapper around animCurve nodes."""
 
     @property
-    def _fn_anim_curve(self):
-        return oma.MFnAnimCurve(self.mobject)
+    def fn_anim_curve(self) -> oma.MFnAnimCurve:
+        return self._function_set(oma.MFnAnimCurve)
 
-    def numKeys(self):
-        return self._fn_anim_curve.numKeys
+    @property
+    def _fn_anim_curve(self) -> oma.MFnAnimCurve:
+        """Backward-compatible alias for existing internal callers."""
+        return self.fn_anim_curve
 
-    def getTime(self, index):
-        return self._fn_anim_curve.input(index).value
+    def numKeys(self) -> int:
+        return self.fn_anim_curve.numKeys
+
+    def getTime(self, index: int) -> float:
+        return self.fn_anim_curve.input(index).value
 
 
 register_node(AnimCurve, om.MFn.kAnimCurve)

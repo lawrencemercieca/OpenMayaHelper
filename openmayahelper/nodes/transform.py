@@ -1,5 +1,7 @@
 """Transform node wrapper."""
 
+from __future__ import annotations
+
 from maya.api import OpenMaya as om
 
 from ..registry import register_node
@@ -10,24 +12,22 @@ class Transform(Node):
     """Wrapper around transform nodes."""
 
     @property
-    def translation(self):
-        if self.dag_path is None:
-            raise TypeError(f"{self.name} is not a DAG transform")
-        return om.MFnTransform(self.dag_path).translation(om.MSpace.kTransform)
+    def fn_transform(self) -> om.MFnTransform:
+        return self._dag_function_set(om.MFnTransform)
 
-    def set_translation(self, value, space=om.MSpace.kTransform):
-        if self.dag_path is None:
-            raise TypeError(f"{self.name} is not a DAG transform")
+    @property
+    def translation(self) -> om.MVector:
+        return self.getTranslation()
+
+    def set_translation(self, value, space=om.MSpace.kTransform) -> "Transform":
         vector = value if isinstance(value, om.MVector) else om.MVector(*value)
-        om.MFnTransform(self.dag_path).setTranslation(vector, space)
+        self.fn_transform.setTranslation(vector, space)
         return self
 
-    def getTranslation(self, space=om.MSpace.kTransform):
-        if self.dag_path is None:
-            raise TypeError(f"{self.name} is not a DAG transform")
-        return om.MFnTransform(self.dag_path).translation(space)
+    def getTranslation(self, space=om.MSpace.kTransform) -> om.MVector:
+        return self.fn_transform.translation(space)
 
-    def setTranslation(self, value, space=om.MSpace.kTransform):
+    def setTranslation(self, value, space=om.MSpace.kTransform) -> "Transform":
         return self.set_translation(value, space=space)
 
 

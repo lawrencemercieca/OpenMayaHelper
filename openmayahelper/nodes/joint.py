@@ -1,5 +1,7 @@
 """Joint node wrapper."""
 
+from __future__ import annotations
+
 from maya.api import OpenMaya as om
 from maya.api import OpenMayaAnim as oma
 
@@ -11,10 +13,12 @@ class Joint(Transform):
     """Wrapper around joint nodes."""
 
     @property
-    def orientation(self):
-        if self.dag_path is None:
-            raise TypeError(f"{self.name} is not a DAG joint")
-        return oma.MFnIkJoint(self.dag_path).orientation().asQuaternion()
+    def fn_joint(self) -> oma.MFnIkJoint:
+        return self._dag_function_set(oma.MFnIkJoint)
+
+    @property
+    def orientation(self) -> om.MQuaternion:
+        return self.fn_joint.orientation().asQuaternion()
 
 
 register_node(Joint, om.MFn.kJoint)
