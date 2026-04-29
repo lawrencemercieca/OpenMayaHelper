@@ -41,12 +41,12 @@ from .nodes import Node
 from .plogging import ERRORLEVEL, getLogger, raiseLog
 from .py2mel import py2melCmd
 from .startup import OpenMayaHelperCache
-from .testingutils import TestCaseExtended
+from .testingutils import TestCaseExtended, permutations
 from .trees import Tree
 from .uitypes import ColumnLayout, FormLayout, Menu, MenuItem, OptionMenu, PyUI, RowLayout, currentMenuParent, currentParent
 from .util_arrays import Array
 from .util_path import path
-from .utilitytypes import Enum, Singleton
+from .utilitytypes import Enum, EquivalencePairs, Singleton, proxyClass
 from . import (
     api_plugins,
     arguments,
@@ -79,6 +79,7 @@ __all__ = [
     'currentMenuParent',
     'currentParent',
     'Enum',
+    'EquivalencePairs',
     'ERRORLEVEL',
     'FormLayout',
     'Menu',
@@ -138,6 +139,7 @@ __all__ = [
     'pmcmds',
     'py2mel',
     'py2melCmd',
+    'permutations',
     'raiseLog',
     'RemovedKey',
     'rename',
@@ -158,4 +160,5 @@ __all__ = [
     'utilitytypes',
     'Vector',
     'windows',
+    'proxyClass',
 ]
